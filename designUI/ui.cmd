@@ -1,0 +1,1 @@
+pyside2-uic.exe .\nhanhdanganh.ui -o ..\ui_nhanhdangand.py
