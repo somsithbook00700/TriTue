@@ -5,6 +5,7 @@ from Function_ui import *
 from ui_nhanhdangand import Ui_MainWindow
 import sys 
 import cv2
+from pytesseract import Output
 
 
 class Mainwindow(QMainWindow):
@@ -17,6 +18,7 @@ class Mainwindow(QMainWindow):
         self.ui.setupUi(self)
         
         ## Function more for GUI
+        self.disableButton()    
         self.ui.pushButton_browse.clicked.connect(lambda: self.singleBrowse())
         self.ui.pushButton_nhandang.clicked.connect(lambda: self.convert())
         self.ui.pushButton_clear.clicked.connect(lambda: self.btnClear())
@@ -24,11 +26,20 @@ class Mainwindow(QMainWindow):
         self.show()
 
     ############# FUNCTION #######################
+
+    
+    
+    def disableButton(self):
+        self.ui.pushButton_nhandang.setEnabled(False)
+        self.ui.comboBox.setEnabled(False)
+        self.ui.comboBox_2.setEnabled(False)
+    
+    
     def convert(self):
         
         self.btnClear()
 
-        ## process
+        ################ process
         filename_get = self.ui.label_input_name.text()
         
         # UI_function.readPicture(self.filename)
@@ -53,9 +64,20 @@ class Mainwindow(QMainWindow):
         # Xóa ảnh tạm sau khi nhận dạng
         # os.remove("./images/draft/{}".format(filename))
 
+        #hien thi image
+        cv2.imshow("Image", image)
+        
+        ## box image
+        d = pytesseract.image_to_data(image, output_type=Output.DICT)
+        n_boxes = len(d['level'])
+        for i in range(n_boxes):
+            if int(d['conf'][i]) > 60:
+                (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
+                image = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
 
         # Hiển thị các ảnh chúng ta đã xử lý.
-        cv2.imshow("Image", image)
+        cv2.imshow('Image with box', image)
         cv2.imshow("Output", gray)
 
         # In dòng chữ nhận dạng được ### change to save 
@@ -63,6 +85,9 @@ class Mainwindow(QMainWindow):
         self.ui.textEdit.moveCursor(QTextCursor.End)
         ## finished
         print("CONVERT COMPLETED")
+        self.disableButton()
+
+
 
     def btnClear(self):
         self.ui.textEdit.clear()
@@ -86,7 +111,13 @@ class Mainwindow(QMainWindow):
         self.ui.label_input_name.setText(filePath[0])
         print("Browsed :",filePath[0])
         self.ui.label.setPixmap(QPixmap(u"{}".format(filePath[0])))
-                                                                                                                      
+        if filePath[0]:
+            self.ui.pushButton_nhandang.setEnabled(True)
+            self.ui.comboBox.setEnabled(True)
+            self.ui.comboBox_2.setEnabled(True)
+        self.ui.label_2.setPixmap(QPixmap(u""))
+        self.ui.textEdit.insertPlainText("")
+                                                                                                   
         
 
 if __name__ == "__main__":

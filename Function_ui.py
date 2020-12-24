@@ -2,10 +2,7 @@ from numpy.core.fromnumeric import argsort
 from main import Mainwindow
 from PIL import Image
 import pytesseract
-import argparse
 import cv2
-import random
-import sys
 import os
 class UI_function(Mainwindow):
 
